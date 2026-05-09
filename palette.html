@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Цветовые палитры — SS14 & Exodus</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #12121e;
+      color: #dce1f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 48px 24px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #6c7a9c;
+      font-size: 0.95rem;
+    }
+
+    .section {
+      max-width: 920px;
+      margin: 0 auto 52px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .section-subtitle {
+      color: #5e6a87;
+      font-size: 0.875rem;
+      margin-bottom: 14px;
+      padding-left: 2px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #181828;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+
+    thead tr {
+      background: #1e1e36;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #7a85a8;
+      border-bottom: 1px solid #252540;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #1e1e30;
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1f203a; }
+
+    td {
+      padding: 11px 16px;
+      font-size: 0.92rem;
+      vertical-align: middle;
+    }
+
+    td.role { font-weight: 500; color: #cdd4ed; }
+    td.char { color: #8a93b8; font-size: 0.88rem; }
+    td.hue  { color: #7a85a8; font-size: 0.88rem; font-family: monospace; }
+
+    .color-cell {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.12);
+      flex-shrink: 0;
+    }
+
+    .hex {
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #9aa3c2;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .ok   { background: #1a3a2a; color: #4ccc80; }
+    .warn { background: #3a2a10; color: #e0a030; }
+
+    .divider {
+      max-width: 920px;
+      margin: 0 auto 52px;
+      border: none;
+      border-top: 1px solid #1e1e30;
+    }
+
+    .hue-spectrum {
+      display: flex;
+      gap: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 18px;
+      margin-bottom: 14px;
+    }
+
+    .hue-segment {
+      flex: 1;
+      position: relative;
+    }
+
+    footer {
+      text-align: center;
+      color: #3a3f5c;
+      font-size: 0.8rem;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 Цветовые палитры ролей</h1>
+  <p>Space Station 14 (SS14) &amp; Exodus — обновлённые гаммы</p>
+</header>
+
+<!-- ─── 1. Анализ структуры ─────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">📊 Анализ структуры палитры</div>
+  <div class="section-subtitle">Паттерн яркости и насыщенности по уровням ролей, единый для всех билдов</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Уровень роли</th>
+        <th>Характер цвета</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="role">Старший Администратор</td><td class="char">Насыщенный, тёмно-средний, prominent</td></tr>
+      <tr><td class="role">Проект менеджер</td><td class="char">Яркий, светлее Ст. Администратора</td></tr>
+      <tr><td class="role">Ведущий Разработчик</td><td class="char">Плотный, чуть темнее ПМ</td></tr>
+      <tr><td class="role">Старший Wiki Редактор</td><td class="char">Средний, умеренный</td></tr>
+      <tr><td class="role">Мейнтейнер</td><td class="char">Тёмный, глубокий</td></tr>
+      <tr><td class="role">Администратор</td><td class="char">Яркий, живой — сопоставим со Ст. Администратором</td></tr>
+      <tr><td class="role">Мл. Администратор</td><td class="char">Светлее Администратора</td></tr>
+      <tr><td class="role">Ментор</td><td class="char">Приглушённый, десатурированный</td></tr>
+      <tr><td class="role">Wiki Редактор</td><td class="char">Средне-тёмный, сдержанный</td></tr>
+      <tr><td class="role">Основная роль (билд)</td><td class="char">Мягкий, светлый — наиболее нейтральный</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider"/>
+
+<!-- ─── 2. Диапазоны оттенков ──────────────────────────────── -->
+<div class="section">
+  <div class="section-title">🌈 Диапазоны оттенков (Hue)</div>
+  <div class="section-subtitle">Каждый билд занимает свой непересекающийся диапазон на цветовом круге</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Билд</th>
+        <th>Пример цвета</th>
+        <th>Диапазон Hue</th>
+        <th>Характер гаммы</th>
+        <th>Конфликты</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="role">BandaMarines</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1fd1af"></div><span class="hex">#1fd1af</span></div></td>
+        <td class="hue">~180–195°</td>
+        <td class="char">Бирюзовый / циановый</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+      <tr>
+        <td class="role"><strong>SS14 (новый)</strong></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1b85d9"></div><span class="hex">#1b85d9</span></div></td>
+        <td class="hue"><strong>~205–218°</strong></td>
+        <td class="char">Синий, «стальной»</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+      <tr>
+        <td class="role"><strong>Exodus (новый)</strong></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#5269e3"></div><span class="hex">#5269e3</span></div></td>
+        <td class="hue"><strong>~229–237°</strong></td>
+        <td class="char">Индиго, «ночной»</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+      <tr>
+        <td class="role">Prime</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#b95fff"></div><span class="hex">#b95fff</span></div></td>
+        <td class="hue">~275–285°</td>
+        <td class="char">Фиолетовый, обособленный</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider"/>
+
+<!-- ─── 3. Палитра SS14 ─────────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">🔵 Новая палитра — Space Station 14 (SS14)</div>
+  <div class="section-subtitle">Гамма: «Синий, приземлённый» — насыщенный, корпоративный, не уходящий в небесно-голубой и не скатывающийся в индиго</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Название роли</th>
+        <th>Старый цвет</th>
+        <th>Новый цвет</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="role">Старший Администратор SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#ffaa00"></div><span class="hex">#ffaa00</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#0f63b8"></div><span class="hex">#0f63b8</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Проект менеджер SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#ffbf00"></div><span class="hex">#ffbf00</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#2294ed"></div><span class="hex">#2294ed</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Ведущий Разработчик SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#f29d29"></div><span class="hex">#f29d29</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1059a4"></div><span class="hex">#1059a4</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Старший Wiki Редактор SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#fffc64"></div><span class="hex">#fffc64</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#2b82c9"></div><span class="hex">#2b82c9</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Мейнтейнер SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#bfc924"></div><span class="hex">#bfc924</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#0a3f84"></div><span class="hex">#0a3f84</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Администратор SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#e8983d"></div><span class="hex">#e8983d</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1b85d9"></div><span class="hex">#1b85d9</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Мл.Администратор SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#e88c3d"></div><span class="hex">#e88c3d</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#3fa2e8"></div><span class="hex">#3fa2e8</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Ментор SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#eaa66e"></div><span class="hex">#eaa66e</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#6e9ec0"></div><span class="hex">#6e9ec0</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Wiki Редактор SS14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#cab356"></div><span class="hex">#cab356</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1e6c99"></div><span class="hex">#1e6c99</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Space Station 14</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#ffb973"></div><span class="hex">#ffb973</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#6dbcee"></div><span class="hex">#6dbcee</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider"/>
+
+<!-- ─── 4. Палитра Exodus ───────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">🟣 Новая палитра — Exodus</div>
+  <div class="section-subtitle">Гамма: «Индиго» — глубокий сине-фиолетовый, отходящий от чистого синего, не заходящий в пурпурный Prime</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Название роли</th>
+        <th>Старый цвет</th>
+        <th>Новый цвет</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="role">Старший Администратор Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#79b3ff"></div><span class="hex">#79b3ff</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#3e5fd8"></div><span class="hex">#3e5fd8</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Проект менеджер Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#2276fd"></div><span class="hex">#2276fd</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#5269e3"></div><span class="hex">#5269e3</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Ведущий Разработчик Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#2f6dff"></div><span class="hex">#2f6dff</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#3551c0"></div><span class="hex">#3551c0</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Старший Wiki Редактор Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#3e42b4"></div><span class="hex">#3e42b4</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#4356b5"></div><span class="hex">#4356b5</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Мейнтейнер Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#262d8f"></div><span class="hex">#262d8f</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#2b3e9e"></div><span class="hex">#2b3e9e</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Администратор Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#679fff"></div><span class="hex">#679fff</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#5d6fea"></div><span class="hex">#5d6fea</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Мл.Администратор Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#679fff"></div><span class="hex">#679fff</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#7182ee"></div><span class="hex">#7182ee</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Ментор Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#3c5e99"></div><span class="hex">#3c5e99</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#6e7ac0"></div><span class="hex">#6e7ac0</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Wiki Редактор Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#5c41ca"></div><span class="hex">#5c41ca</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#3d4fb6"></div><span class="hex">#3d4fb6</span></div></td>
+      </tr>
+      <tr>
+        <td class="role">Exodus</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#556eee"></div><span class="hex">#556eee</span></div></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#7d8ff6"></div><span class="hex">#7d8ff6</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider"/>
+
+<!-- ─── 5. Визуальная проверка ─────────────────────────────── -->
+<div class="section">
+  <div class="section-title">✅ Визуальная проверка разграничений</div>
+  <div class="section-subtitle">Все четыре гаммы чётко разделены по тону — конфликтов нет</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Билд</th>
+        <th>Пример цвета</th>
+        <th>Hue</th>
+        <th>Характер</th>
+        <th>Пересечения</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="role">BandaMarines</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1fd1af"></div><span class="hex">#1fd1af</span></div></td>
+        <td class="hue">~180–195°</td>
+        <td class="char">Бирюзовый / циановый</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+      <tr>
+        <td class="role"><strong>SS14 (новый)</strong></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#1b85d9"></div><span class="hex">#1b85d9</span></div></td>
+        <td class="hue"><strong>~205–218°</strong></td>
+        <td class="char">Синий, «стальной»</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+      <tr>
+        <td class="role"><strong>Exodus (новый)</strong></td>
+        <td><div class="color-cell"><div class="swatch" style="background:#5269e3"></div><span class="hex">#5269e3</span></div></td>
+        <td class="hue"><strong>~229–237°</strong></td>
+        <td class="char">Индиго, «ночной»</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+      <tr>
+        <td class="role">Prime</td>
+        <td><div class="color-cell"><div class="swatch" style="background:#b95fff"></div><span class="hex">#b95fff</span></div></td>
+        <td class="hue">~275–285°</td>
+        <td class="char">Фиолетовый, обособленный</td>
+        <td><span class="badge ok">✅ Нет</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  Все гаммы чётко разделены по тону &nbsp;·&nbsp; Конфликтов с Prime и между билдами не обнаружено ✅
+</footer>
+
+</body>
+</html>
