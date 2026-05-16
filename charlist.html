@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конструктор Листов Персонажей</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Rye&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════ APP SHELL ═══════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0e0e10;color:#e0ddd8;min-height:100vh}
+a{color:#c9a96e;text-decoration:none}
+
+/* NAV */
+.app-nav{background:#18181b;border-bottom:1px solid #2a2a2e;padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100}
+.app-nav .logo{font-family:'Rye',serif;font-size:18px;color:#c9a96e;margin-right:32px;white-space:nowrap}
+.app-nav .nav-links{display:flex;gap:4px}
+.app-nav .nav-links button{background:none;border:none;color:#999;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;padding:8px 16px;border-radius:6px;cursor:pointer;transition:.2s}
+.app-nav .nav-links button:hover{color:#e0ddd8;background:#ffffff0d}
+.app-nav .nav-links button.active{color:#c9a96e;background:#c9a96e18}
+
+/* VIEWS */
+.view{display:none;padding:24px;max-width:1200px;margin:0 auto}
+.view.active{display:block}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s}
+.btn-primary{background:#c9a96e;color:#111}
+.btn-primary:hover{background:#dbb97e}
+.btn-secondary{background:#2a2a2e;color:#e0ddd8;border:1px solid #3a3a3e}
+.btn-secondary:hover{background:#3a3a3e}
+.btn-danger{background:#7a1010;color:#fff}
+.btn-danger:hover{background:#9a2020}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:20px}
+.card{background:#1e1e22;border:1px solid #2a2a2e;border-radius:12px;padding:20px;cursor:pointer;transition:.2s;position:relative}
+.card:hover{border-color:#c9a96e55;transform:translateY(-2px);box-shadow:0 8px 24px #0005}
+.card h3{font-family:'Rye',serif;font-size:16px;color:#c9a96e;margin-bottom:8px}
+.card p{font-size:13px;color:#888;line-height:1.5}
+.card-actions{display:flex;gap:8px;margin-top:14px}
+
+/* FORM ELEMENTS */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#999;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-input{width:100%;padding:10px 14px;background:#111;border:1px solid #2a2a2e;border-radius:8px;color:#e0ddd8;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:.2s}
+.form-input:focus{border-color:#c9a96e}
+select.form-input{cursor:pointer}
+textarea.form-input{min-height:80px;resize:vertical}
+
+/* SECTION HEADINGS */
+.section-title{font-size:24px;font-weight:700;margin-bottom:8px}
+.section-subtitle{font-size:14px;color:#888;margin-bottom:24px}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;padding:16px;background:#1e1e22;border-radius:12px;border:1px solid #2a2a2e}
+.toolbar-separator{width:1px;height:24px;background:#3a3a3e}
+
+/* EDITOR PANELS */
+.editor-layout{display:grid;grid-template-columns:320px 1fr;gap:20px;min-height:calc(100vh - 120px)}
+.editor-sidebar{background:#1e1e22;border:1px solid #2a2a2e;border-radius:12px;padding:16px;overflow-y:auto;max-height:calc(100vh - 120px);position:sticky;top:76px}
+.editor-main{overflow-y:auto}
+
+.tree-item{padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px;transition:.15s;display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.tree-item:hover{background:#ffffff0a}
+.tree-item.active{background:#c9a96e22;color:#c9a96e}
+.tree-item .icon{font-size:16px;opacity:.6}
+.tree-row{font-weight:600;color:#c9a96e;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-top:12px;margin-bottom:4px;padding:4px 12px}
+.tree-section{padding-left:28px}
+.tree-add{padding:6px 12px;font-size:12px;color:#666;cursor:pointer;border:1px dashed #333;border-radius:6px;text-align:center;margin:4px 0 4px 28px;transition:.15s}
+.tree-add:hover{color:#c9a96e;border-color:#c9a96e55}
+
+/* EDITOR FORM */
+.editor-form{background:#1e1e22;border:1px solid #2a2a2e;border-radius:12px;padding:20px}
+.editor-form h3{font-size:16px;margin-bottom:16px;color:#c9a96e;font-family:'Rye',serif}
+.field-list{margin-top:8px}
+.field-item{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.field-item input{flex:1}
+.field-item .btn-sm{flex-shrink:0}
+.header-item{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.header-item input:first-child{flex:2}
+.header-item input:last-of-type{flex:1}
+
+/* ═══════════════════ CHARACTER SHEET STYLES ═══════════════════ */
+.sheet-wrapper{display:flex;justify-content:center;padding:20px 0}
+
+.page-a4{
+  width:210mm;min-height:297mm;
+  background-color:#c7bcae;
+  background-image:
+    radial-gradient(circle at center,transparent 30%,rgba(20,15,10,.65) 100%),
+    repeating-linear-gradient(45deg,rgba(0,0,0,.02) 0px,rgba(0,0,0,.02) 2px,transparent 2px,transparent 4px),
+    linear-gradient(to bottom,rgba(255,255,255,.1),rgba(0,0,0,.1));
+  padding:12mm;box-sizing:border-box;
+  box-shadow:0 0 20px #000;position:relative;
+  border:6px solid #1a1614;outline:2px solid #7a1010;outline-offset:-10px;
+  font-family:'Cormorant Garamond',serif;color:#1a1614;
+}
+.page-a4 h1{font-family:'Rye',serif;text-align:center;text-transform:uppercase;font-size:34px;color:#1a1614;margin:15px 0 5px;letter-spacing:3px;text-shadow:1px 1px 0 rgba(255,255,255,.3)}
+.page-a4 .sheet-subtitle{text-align:center;font-size:16px;font-style:italic;color:#7a1010;margin-bottom:25px;font-weight:bold;letter-spacing:1px}
+
+.page-a4 input[type="text"]{background:transparent;border:none;border-bottom:1px dotted #1a1614;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#1a1614;width:100%;outline:none;padding:0 5px}
+.page-a4 textarea{background:transparent;border:none;width:100%;height:calc(100% - 5px);resize:none;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#1a1614;outline:none;line-height:24px;background-image:linear-gradient(transparent,transparent 23px,rgba(0,0,0,.2) 24px);background-size:100% 24px}
+
+.sheet-row{display:flex;gap:20px;margin-bottom:20px}
+.sheet-row:last-child{margin-bottom:0}
+.sheet-col{display:flex;flex-direction:column;gap:20px}
+
+.box{border:3px solid #1a1614;padding:15px 12px 10px;position:relative;background:rgba(255,255,255,.15);box-shadow:inset 0 0 10px rgba(0,0,0,.1)}
+.box-title{position:absolute;top:-14px;left:15px;background-color:#bfae9c;border:3px solid #1a1614;padding:2px 10px;font-family:'Rye',serif;font-size:14px;color:#7a1010;text-transform:uppercase;box-shadow:2px 2px 0 rgba(0,0,0,.3);white-space:nowrap}
+
+.info-grid{display:grid;gap:0 20px}
+.info-row{display:flex;align-items:flex-end;margin-bottom:10px}
+.info-row:last-child{margin-bottom:0}
+.info-row span{font-weight:bold;font-size:18px;white-space:nowrap;margin-right:10px;font-family:'Cormorant Garamond',serif}
+
+.page-a4 table{width:100%;border-collapse:collapse;margin-top:5px}
+.page-a4 th,.page-a4 td{border:1px solid #3a322d;padding:6px;text-align:left}
+.page-a4 th{background:rgba(0,0,0,.1);font-weight:bold;font-family:'Rye',serif;font-size:12px;color:#7a1010;text-transform:uppercase;border-bottom:3px solid #1a1614}
+.page-a4 td input[type="text"]{border-bottom:none;font-size:16px}
+
+.splatter-1{position:absolute;top:40px;right:30px;width:40px;height:40px;background:radial-gradient(circle,rgba(122,16,16,.1) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media(max-width:900px){
+  .editor-layout{grid-template-columns:1fr}
+  .editor-sidebar{position:static;max-height:none}
+}
+
+/* ═══════════════════ PRINT / PDF ═══════════════════ */
+@media print{
+  body{background:white!important}
+  .app-nav,.toolbar,.view>*:not(.sheet-wrapper){display:none!important}
+  .page-a4{box-shadow:none;margin:0;outline-offset:-10px}
+}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#000a;z-index:200;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:#1e1e22;border:1px solid #2a2a2e;border-radius:16px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:18px;margin-bottom:16px;color:#c9a96e}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+/* Notification */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e1e22;border:1px solid #c9a96e;color:#e0ddd8;padding:12px 20px;border-radius:10px;font-size:14px;z-index:300;transform:translateY(80px);opacity:0;transition:.3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ═══════ NAVIGATION ═══════ -->
+<nav class="app-nav">
+  <div class="logo">⛧ CharSheet</div>
+  <div class="nav-links">
+    <button class="active" onclick="showView('home')">Главная</button>
+    <button onclick="showView('editor')">Редактор</button>
+    <button onclick="showView('sheet')">Лист</button>
+  </div>
+</nav>
+
+<!-- ═══════ HOME VIEW ═══════ -->
+<div id="view-home" class="view active">
+  <h2 class="section-title">Ваши шаблоны</h2>
+  <p class="section-subtitle">Выберите шаблон для заполнения или создайте новый</p>
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="createNewTemplate()">＋ Новый шаблон</button>
+    <button class="btn btn-secondary" onclick="importTemplate()">📂 Импорт шаблона (JSON)</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-secondary" onclick="importCharacter()">📂 Загрузить персонажа (JSON)</button>
+  </div>
+  <div id="template-grid" class="card-grid"></div>
+</div>
+
+<!-- ═══════ EDITOR VIEW ═══════ -->
+<div id="view-editor" class="view">
+  <div class="toolbar">
+    <button class="btn btn-secondary" onclick="showView('home')">← Назад</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-primary" onclick="saveCurrentTemplate()">💾 Сохранить</button>
+    <button class="btn btn-secondary" onclick="exportTemplate()">📤 Экспорт JSON</button>
+    <button class="btn btn-secondary" onclick="previewTemplate()">👁 Предпросмотр</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-danger btn-sm" onclick="deleteCurrentTemplate()">🗑 Удалить</button>
+  </div>
+  <div class="editor-layout">
+    <div class="editor-sidebar">
+      <div style="margin-bottom:12px;font-weight:600;font-size:13px;color:#999;text-transform:uppercase;letter-spacing:.5px">Структура</div>
+      <div id="tree-container"></div>
+      <div class="tree-add" style="margin-left:0;margin-top:12px" onclick="addRow()">＋ Добавить ряд</div>
+    </div>
+    <div class="editor-main">
+      <div id="editor-form-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SHEET VIEW ═══════ -->
+<div id="view-sheet" class="view">
+  <div class="toolbar" id="sheet-toolbar">
+    <button class="btn btn-secondary" onclick="showView('home')">← Назад</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-primary" onclick="exportPDF()">📄 Сохранить PDF</button>
+    <button class="btn btn-secondary" onclick="saveCharacter()">💾 Сохранить персонажа (JSON)</button>
+    <button class="btn btn-secondary" onclick="importCharacter()">📂 Загрузить персонажа</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-secondary btn-sm" onclick="clearSheetFields()">🧹 Очистить поля</button>
+  </div>
+  <div class="sheet-wrapper" id="sheet-wrapper">
+    <div class="page-a4" id="sheet-content"></div>
+  </div>
+</div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let templates = {};
+let currentTemplateId = null;
+let editorSelection = null; // {type:'general'|'row'|'section', rowIdx, colIdx, secIdx}
+let charData = {}; // field values for current sheet
+
+const DEFAULT_TEMPLATE = {
+  name: "Орден Серых Стражей",
+  title: "Орден Серых Стражей",
+  subtitle: "ЭДЭМЭ | 1433 ГОД | КУЛЬТ СВЕТА",
+  rows: [
+    {
+      columns: [
+        { flex: 1, sections: [{ type:"fields", title:"Основная информация", columns:2, align:"", fields:[{label:"Имя"},{label:"Ранг"},{label:"Прозвище"},{label:"Уровень"}] }] }
+      ]
+    },
+    {
+      columns: [
+        { flex: 1, sections: [
+          { type:"fields", title:"Характеристики", columns:1, align:"center", fields:[{label:"Самочувствие"},{label:"Движение"},{label:"Мышление"},{label:"Внимание"},{label:"Сражение"},{label:"Общение"}] },
+          { type:"fields", title:"Ресурсы", columns:1, align:"center", fields:[{label:"Здоровье"},{label:"Вдохновенье"},{label:"Опыт"}] }
+        ]},
+        { flex: 1.5, sections: [{ type:"table", title:"Черты и способности", headers:["Название","Описание"], widths:["35%","65%"], rows:10 }] }
+      ]
+    },
+    {
+      columns: [
+        { flex: 1, sections: [{ type:"table", title:"Инвентарь и Арсенал", headers:["Предмет","Особенности"], widths:["40%","60%"], rows:6 }] }
+      ]
+    },
+    {
+      columns: [
+        { flex: 1, sections: [{ type:"textarea", title:"Биография", height:200 }] },
+        { flex: 1, sections: [{ type:"textarea", title:"Заметки", height:200 }] }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════════
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('cs_templates');
+    if (raw) templates = JSON.parse(raw);
+  } catch(e) { templates = {}; }
+  if (!Object.keys(templates).length) {
+    const id = uid();
+    templates[id] = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+    saveToStorage();
+  }
+}
+function saveToStorage() {
+  localStorage.setItem('cs_templates', JSON.stringify(templates));
+}
+function uid() { return 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-links button').forEach((b,i) => {
+    b.classList.toggle('active', ['home','editor','sheet'][i] === name);
+  });
+  if (name === 'home') renderHome();
+  if (name === 'editor') renderEditor();
+  if (name === 'sheet') renderSheet();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HOME VIEW
+// ═══════════════════════════════════════════════════════════════
+function renderHome() {
+  const grid = document.getElementById('template-grid');
+  grid.innerHTML = '';
+  for (const [id, tpl] of Object.entries(templates)) {
+    const sectionCount = tpl.rows.reduce((s,r) => s + r.columns.reduce((s2,c) => s2 + c.sections.length, 0), 0);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>${esc(tpl.name || 'Без названия')}</h3>
+      <p>${esc(tpl.subtitle || '')}<br>Секций: ${sectionCount} · Рядов: ${tpl.rows.length}</p>
+      <div class="card-actions">
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openSheet('${id}')">📝 Заполнить</button>
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openEditor('${id}')">✏️ Редактировать</button>
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();duplicateTemplate('${id}')">📋 Копия</button>
+      </div>`;
+    grid.appendChild(card);
+  }
+}
+
+function createNewTemplate() {
+  const id = uid();
+  templates[id] = {
+    name: "Новый шаблон",
+    title: "Заголовок",
+    subtitle: "Подзаголовок",
+    rows: [
+      { columns: [{ flex:1, sections:[{ type:"fields", title:"Основная информация", columns:2, align:"", fields:[{label:"Имя"},{label:"Класс"}] }] }] }
+    ]
+  };
+  saveToStorage();
+  openEditor(id);
+}
+
+function duplicateTemplate(id) {
+  const newId = uid();
+  const copy = JSON.parse(JSON.stringify(templates[id]));
+  copy.name = copy.name + ' (копия)';
+  templates[newId] = copy;
+  saveToStorage();
+  renderHome();
+  toast('Шаблон скопирован');
+}
+
+function openEditor(id) { currentTemplateId = id; editorSelection = {type:'general'}; showView('editor'); }
+function openSheet(id) { currentTemplateId = id; charData = {}; showView('sheet'); }
+
+// ═══════════════════════════════════════════════════════════════
+// EDITOR VIEW
+// ═══════════════════════════════════════════════════════════════
+function tpl() { return templates[currentTemplateId]; }
+
+function renderEditor() {
+  if (!currentTemplateId || !tpl()) { showView('home'); return; }
+  renderTree();
+  renderEditorForm();
+}
+
+function renderTree() {
+  const container = document.getElementById('tree-container');
+  const t = tpl();
+  let html = `<div class="tree-item ${editorSelection?.type==='general'?'active':''}" onclick="selectEditor('general')"><span class="icon">📄</span> ${esc(t.name)}</div>`;
+  t.rows.forEach((row, ri) => {
+    html += `<div class="tree-row">Ряд ${ri+1} <span style="float:right;cursor:pointer;font-size:14px" onclick="event.stopPropagation();removeRow(${ri})">✕</span></div>`;
+    row.columns.forEach((col, ci) => {
+      col.sections.forEach((sec, si) => {
+        const active = editorSelection?.type==='section' && editorSelection.rowIdx===ri && editorSelection.colIdx===ci && editorSelection.secIdx===si;
+        const icon = sec.type==='fields'?'📋':sec.type==='table'?'📊':'📝';
+        html += `<div class="tree-item tree-section ${active?'active':''}" onclick="selectEditor('section',${ri},${ci},${si})"><span class="icon">${icon}</span> ${esc(sec.title)}</div>`;
+      });
+      html += `<div class="tree-add" onclick="addSection(${ri},${ci})">＋ секцию</div>`;
+    });
+    html += `<div class="tree-add" style="margin-left:12px" onclick="addColumn(${ri})">＋ колонку</div>`;
+  });
+  container.innerHTML = html;
+}
+
+function selectEditor(type, ri, ci, si) {
+  editorSelection = { type, rowIdx:ri, colIdx:ci, secIdx:si };
+  renderTree();
+  renderEditorForm();
+}
+
+function renderEditorForm() {
+  const container = document.getElementById('editor-form-container');
+  const t = tpl();
+  if (!editorSelection || editorSelection.type === 'general') {
+    container.innerHTML = `
+      <div class="editor-form">
+        <h3>Общие настройки</h3>
+        <div class="form-group"><label>Название шаблона</label><input class="form-input" value="${esc(t.name)}" oninput="t().name=this.value;renderTree()"></div>
+        <div class="form-group"><label>Заголовок на листе</label><input class="form-input" value="${esc(t.title)}" oninput="t().title=this.value"></div>
+        <div class="form-group"><label>Подзаголовок</label><input class="form-input" value="${esc(t.subtitle)}" oninput="t().subtitle=this.value"></div>
+      </div>`;
+    return;
+  }
+  if (editorSelection.type === 'section') {
+    const {rowIdx:ri, colIdx:ci, secIdx:si} = editorSelection;
+    const sec = t.rows[ri]?.columns[ci]?.sections[si];
+    const col = t.rows[ri]?.columns[ci];
+    if (!sec) { selectEditor('general'); return; }
+
+    let html = `<div class="editor-form">
+      <h3>Секция: ${esc(sec.title)}</h3>
+      <div style="display:flex;gap:12px;margin-bottom:16px">
+        <div class="form-group" style="flex:2"><label>Название</label><input class="form-input" value="${esc(sec.title)}" oninput="getSection(${ri},${ci},${si}).title=this.value;renderTree()"></div>
+        <div class="form-group" style="flex:1"><label>Тип</label>
+          <select class="form-input" onchange="changeSectionType(${ri},${ci},${si},this.value)">
+            <option value="fields" ${sec.type==='fields'?'selected':''}>Поля</option>
+            <option value="table" ${sec.type==='table'?'selected':''}>Таблица</option>
+            <option value="textarea" ${sec.type==='textarea'?'selected':''}>Текстовое поле</option>
+          </select></div>
+        <div class="form-group" style="flex:0.7"><label>Flex колонки</label><input class="form-input" type="number" step="0.1" min="0.1" value="${col.flex}" oninput="tpl().rows[${ri}].columns[${ci}].flex=parseFloat(this.value)||1"></div>
+      </div>`;
+
+    if (sec.type === 'fields') {
+      html += `<div class="form-group"><label>Кол-во колонок</label>
+        <select class="form-input" style="width:80px" onchange="getSection(${ri},${ci},${si}).columns=parseInt(this.value)">
+          <option value="1" ${sec.columns===1?'selected':''}>1</option>
+          <option value="2" ${sec.columns===2?'selected':''}>2</option>
+          <option value="3" ${sec.columns===3?'selected':''}>3</option>
+        </select></div>
+        <div class="form-group"><label>Выравнивание значений</label>
+        <select class="form-input" style="width:120px" onchange="getSection(${ri},${ci},${si}).align=this.value">
+          <option value="" ${!sec.align?'selected':''}>По левому краю</option>
+          <option value="center" ${sec.align==='center'?'selected':''}>По центру</option>
+        </select></div>`;
+      html += `<div class="form-group"><label>Поля</label><div class="field-list" id="field-list">`;
+      (sec.fields||[]).forEach((f, fi) => {
+        html += `<div class="field-item"><input class="form-input" value="${esc(f.label)}" oninput="getSection(${ri},${ci},${si}).fields[${fi}].label=this.value" placeholder="Название поля"><button class="btn btn-danger btn-sm" onclick="removeField(${ri},${ci},${si},${fi})">✕</button></div>`;
+      });
+      html += `</div><button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addField(${ri},${ci},${si})">＋ Добавить поле</button></div>`;
+    }
+
+    if (sec.type === 'table') {
+      html += `<div class="form-group"><label>Строк</label><input class="form-input" type="number" min="1" max="30" style="width:80px" value="${sec.rows||5}" oninput="getSection(${ri},${ci},${si}).rows=parseInt(this.value)||5"></div>`;
+      html += `<div class="form-group"><label>Заголовки таблицы</label><div id="header-list">`;
+      (sec.headers||[]).forEach((h, hi) => {
+        html += `<div class="header-item"><input class="form-input" value="${esc(h)}" oninput="getSection(${ri},${ci},${si}).headers[${hi}]=this.value" placeholder="Заголовок"><input class="form-input" value="${esc((sec.widths||[])[hi]||'')}" oninput="ensureWidths(${ri},${ci},${si});getSection(${ri},${ci},${si}).widths[${hi}]=this.value" placeholder="Ширина (напр. 40%)"><button class="btn btn-danger btn-sm" onclick="removeHeader(${ri},${ci},${si},${hi})">✕</button></div>`;
+      });
+      html += `</div><button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addHeader(${ri},${ci},${si})">＋ Столбец</button></div>`;
+    }
+
+    if (sec.type === 'textarea') {
+      html += `<div class="form-group"><label>Высота (px)</label><input class="form-input" type="number" min="50" max="600" style="width:120px" value="${sec.height||200}" oninput="getSection(${ri},${ci},${si}).height=parseInt(this.value)||200"></div>`;
+    }
+
+    html += `<div style="margin-top:20px;padding-top:16px;border-top:1px solid #2a2a2e;display:flex;gap:8px">
+      <button class="btn btn-secondary btn-sm" onclick="moveSection(${ri},${ci},${si},-1)">↑ Вверх</button>
+      <button class="btn btn-secondary btn-sm" onclick="moveSection(${ri},${ci},${si},1)">↓ Вниз</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-danger btn-sm" onclick="removeSection(${ri},${ci},${si})">🗑 Удалить секцию</button>
+      ${t.rows[ri].columns.length > 1 ? `<button class="btn btn-danger btn-sm" onclick="removeColumn(${ri},${ci})">🗑 Удалить колонку</button>` : ''}
+    </div>`;
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+}
+
+function getSection(ri,ci,si) { return tpl().rows[ri].columns[ci].sections[si]; }
+
+function changeSectionType(ri,ci,si,newType) {
+  const sec = getSection(ri,ci,si);
+  const oldTitle = sec.title;
+  if (newType === 'fields') {
+    Object.assign(sec, {type:'fields', columns:1, align:'', fields:[{label:'Поле 1'}]});
+  } else if (newType === 'table') {
+    Object.assign(sec, {type:'table', headers:['Название','Описание'], widths:['40%','60%'], rows:5});
+    delete sec.columns; delete sec.align; delete sec.fields; delete sec.height;
+  } else {
+    Object.assign(sec, {type:'textarea', height:200});
+    delete sec.columns; delete sec.align; delete sec.fields; delete sec.headers; delete sec.widths; delete sec.rows;
+  }
+  sec.title = oldTitle;
+  renderEditorForm();
+}
+
+function addField(ri,ci,si) { getSection(ri,ci,si).fields.push({label:'Новое поле'}); renderEditorForm(); }
+function removeField(ri,ci,si,fi) { getSection(ri,ci,si).fields.splice(fi,1); renderEditorForm(); }
+function addHeader(ri,ci,si) { const s=getSection(ri,ci,si); s.headers.push('Столбец'); if(!s.widths)s.widths=[]; s.widths.push(''); renderEditorForm(); }
+function removeHeader(ri,ci,si,hi) { const s=getSection(ri,ci,si); s.headers.splice(hi,1); if(s.widths)s.widths.splice(hi,1); renderEditorForm(); }
+function ensureWidths(ri,ci,si) { const s=getSection(ri,ci,si); if(!s.widths)s.widths=s.headers.map(()=>''); while(s.widths.length<s.headers.length)s.widths.push(''); }
+
+function addRow() {
+  tpl().rows.push({columns:[{flex:1,sections:[{type:'fields',title:'Новая секция',columns:1,align:'',fields:[{label:'Поле'}]}]}]});
+  renderTree();
+}
+function removeRow(ri) {
+  if (tpl().rows.length <= 1) { toast('Нельзя удалить последний ряд'); return; }
+  tpl().rows.splice(ri,1);
+  editorSelection = {type:'general'};
+  renderEditor();
+}
+function addColumn(ri) {
+  tpl().rows[ri].columns.push({flex:1,sections:[{type:'fields',title:'Новая секция',columns:1,align:'',fields:[{label:'Поле'}]}]});
+  renderTree();
+}
+function removeColumn(ri,ci) {
+  if (tpl().rows[ri].columns.length <= 1) return;
+  tpl().rows[ri].columns.splice(ci,1);
+  editorSelection = {type:'general'};
+  renderEditor();
+}
+function addSection(ri,ci) {
+  tpl().rows[ri].columns[ci].sections.push({type:'fields',title:'Новая секция',columns:1,align:'',fields:[{label:'Поле'}]});
+  renderTree();
+}
+function removeSection(ri,ci,si) {
+  const col = tpl().rows[ri].columns[ci];
+  if (col.sections.length <= 1) { toast('Удалите колонку целиком'); return; }
+  col.sections.splice(si,1);
+  editorSelection = {type:'general'};
+  renderEditor();
+}
+function moveSection(ri,ci,si,dir) {
+  const secs = tpl().rows[ri].columns[ci].sections;
+  const ni = si + dir;
+  if (ni < 0 || ni >= secs.length) return;
+  [secs[si], secs[ni]] = [secs[ni], secs[si]];
+  editorSelection.secIdx = ni;
+  renderEditor();
+}
+
+function saveCurrentTemplate() { saveToStorage(); toast('Шаблон сохранён'); }
+function deleteCurrentTemplate() {
+  if (Object.keys(templates).length <= 1) { toast('Нельзя удалить единственный шаблон'); return; }
+  if (!confirm('Удалить шаблон "'+tpl().name+'"?')) return;
+  delete templates[currentTemplateId];
+  saveToStorage();
+  currentTemplateId = null;
+  showView('home');
+  toast('Шаблон удалён');
+}
+
+function exportTemplate() {
+  const t = tpl();
+  downloadJSON(t, (t.name||'template')+'.json');
+  toast('Шаблон экспортирован');
+}
+
+function previewTemplate() {
+  saveToStorage();
+  charData = {};
+  showView('sheet');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SHEET RENDERING
+// ═══════════════════════════════════════════════════════════════
+function renderSheet() {
+  if (!currentTemplateId || !tpl()) { showView('home'); return; }
+  const t = tpl();
+  const el = document.getElementById('sheet-content');
+  let html = `<div class="splatter-1"></div><h1>${esc(t.title)}</h1><div class="sheet-subtitle">${esc(t.subtitle)}</div>`;
+
+  t.rows.forEach((row, ri) => {
+    const flexes = row.columns.map(c => (c.flex||1)+'fr').join(' ');
+    html += `<div class="sheet-row" style="display:grid;grid-template-columns:${flexes};gap:20px;margin-bottom:${ri<t.rows.length-1?'20':'0'}px">`;
+    row.columns.forEach((col, ci) => {
+      html += `<div class="sheet-col">`;
+      col.sections.forEach((sec, si) => {
+        const sid = `${ri}_${ci}_${si}`;
+        if (sec.type === 'fields') {
+          html += `<div class="box"><div class="box-title">${esc(sec.title)}</div>`;
+          html += `<div class="info-grid" style="grid-template-columns:repeat(${sec.columns||1},1fr)">`;
+          (sec.fields||[]).forEach((f, fi) => {
+            const fid = `f_${sid}_${fi}`;
+            const val = charData[fid] || '';
+            html += `<div class="info-row"><span>${esc(f.label)}:</span><input type="text" data-fid="${fid}" value="${esc(val)}" ${sec.align?'style="text-align:'+sec.align+'"':''}></div>`;
+          });
+          html += `</div></div>`;
+        }
+        else if (sec.type === 'table') {
+          html += `<div class="box" style="flex:1;display:flex;flex-direction:column"><div class="box-title">${esc(sec.title)}</div><table><tr>`;
+          (sec.headers||[]).forEach((h,hi) => {
+            const w = (sec.widths||[])[hi];
+            html += `<th ${w?'style="width:'+w+'"':''}>${esc(h)}</th>`;
+          });
+          html += `</tr>`;
+          for (let r=0; r<(sec.rows||5); r++) {
+            html += `<tr>`;
+            (sec.headers||[]).forEach((h,hi) => {
+              const fid = `t_${sid}_${r}_${hi}`;
+              const val = charData[fid] || '';
+              html += `<td><input type="text" data-fid="${fid}" value="${esc(val)}"></td>`;
+            });
+            html += `</tr>`;
+          }
+          html += `</table></div>`;
+        }
+        else if (sec.type === 'textarea') {
+          const fid = `ta_${sid}`;
+          const val = charData[fid] || '';
+          html += `<div class="box" style="height:${sec.height||200}px"><div class="box-title">${esc(sec.title)}</div><textarea data-fid="${fid}">${esc(val)}</textarea></div>`;
+        }
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  el.innerHTML = html;
+
+  // Attach input listeners to save data on change
+  el.querySelectorAll('[data-fid]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      charData[inp.dataset.fid] = inp.value;
+    });
+  });
+}
+
+function collectSheetData() {
+  const el = document.getElementById('sheet-content');
+  el.querySelectorAll('[data-fid]').forEach(inp => {
+    charData[inp.dataset.fid] = inp.value;
+  });
+}
+
+function clearSheetFields() {
+  if (!confirm('Очистить все поля?')) return;
+  charData = {};
+  renderSheet();
+  toast('Поля очищены');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportPDF() {
+  collectSheetData();
+  const element = document.getElementById('sheet-content');
+  const name = tpl()?.name || 'character-sheet';
+  toast('Генерация PDF…');
+  const opt = {
+    margin: 0,
+    filename: name + '.pdf',
+    image: { type:'jpeg', quality:0.95 },
+    html2canvas: { scale:2, useCORS:true, backgroundColor:'#c7bcae' },
+    jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+  };
+  html2pdf().set(opt).from(element).save().then(() => {
+    toast('PDF сохранён');
+  }).catch(() => {
+    toast('Ошибка PDF. Попробуйте Ctrl+P → Сохранить как PDF');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHARACTER SAVE / LOAD
+// ═══════════════════════════════════════════════════════════════
+function saveCharacter() {
+  collectSheetData();
+  const data = {
+    _type: 'character',
+    _templateId: currentTemplateId,
+    _templateName: tpl()?.name || '',
+    fields: charData
+  };
+  downloadJSON(data, (tpl()?.name||'character')+'_data.json');
+  toast('Персонаж сохранён');
+}
+
+function importCharacter() {
+  pickFile(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data._type === 'character' && data.fields) {
+          charData = data.fields;
+          if (data._templateId && templates[data._templateId]) {
+            currentTemplateId = data._templateId;
+          }
+          showView('sheet');
+          toast('Персонаж загружен');
+        } else {
+          toast('Неверный формат файла');
+        }
+      } catch(err) { toast('Ошибка чтения файла'); }
+    };
+    reader.readAsText(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TEMPLATE IMPORT
+// ═══════════════════════════════════════════════════════════════
+function importTemplate() {
+  pickFile(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.rows && Array.isArray(data.rows)) {
+          const id = uid();
+          templates[id] = data;
+          saveToStorage();
+          toast('Шаблон импортирован');
+          openEditor(id);
+        } else {
+          toast('Неверный формат шаблона');
+        }
+      } catch(err) { toast('Ошибка чтения файла'); }
+    };
+    reader.readAsText(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function esc(s) { if (!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function downloadJSON(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function pickFile(cb) {
+  const input = document.getElementById('file-input');
+  input.value = '';
+  input.onchange = () => { if (input.files[0]) cb(input.files[0]); };
+  input.click();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+loadFromStorage();
+renderHome();
+</script>
+</body>
+</html>
