@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конструктор Листов Персонажей</title>
+
+  <!-- Внешние шрифты -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Rye&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Стили приложения -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════ НАВИГАЦИЯ ═══════════════════ -->
+<nav class="app-nav">
+  <div class="logo">⛧ CharSheet</div>
+  <div class="nav-links">
+    <button class="active" onclick="showView('home')">Главная</button>
+    <button onclick="showView('editor')">Редактор</button>
+    <button onclick="showView('sheet')">Лист</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ ГЛАВНАЯ ═══════════════════ -->
+<div id="view-home" class="view active">
+  <h2 class="section-title">Ваши шаблоны</h2>
+  <p class="section-subtitle">Выберите шаблон для заполнения или создайте новый</p>
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="createNewTemplate()">＋ Новый шаблон</button>
+    <button class="btn btn-secondary" onclick="importTemplate()">📂 Импорт шаблона (JSON)</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-secondary" onclick="importCharacter()">📂 Загрузить персонажа (JSON)</button>
+  </div>
+  <div id="template-grid" class="card-grid"></div>
+</div>
+
+<!-- ═══════════════════ РЕДАКТОР ═══════════════════ -->
+<div id="view-editor" class="view">
+  <div class="toolbar">
+    <button class="btn btn-secondary" onclick="showView('home')">← Назад</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-primary" onclick="saveCurrentTemplate()">💾 Сохранить</button>
+    <button class="btn btn-secondary" onclick="exportTemplate()">📤 Экспорт JSON</button>
+    <button class="btn btn-secondary" onclick="previewTemplate()">👁 Предпросмотр</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-danger btn-sm" onclick="deleteCurrentTemplate()">🗑 Удалить</button>
+  </div>
+  <div class="editor-layout">
+    <div class="editor-sidebar">
+      <div style="margin-bottom:12px;font-weight:600;font-size:13px;color:#999;text-transform:uppercase;letter-spacing:.5px">Структура</div>
+      <div id="tree-container"></div>
+      <div class="tree-add" style="margin-left:0;margin-top:12px" onclick="addRow()">＋ Добавить ряд</div>
+    </div>
+    <div class="editor-main">
+      <div id="editor-form-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ЛИСТ ПЕРСОНАЖА ═══════════════════ -->
+<div id="view-sheet" class="view">
+  <div class="toolbar" id="sheet-toolbar">
+    <button class="btn btn-secondary" onclick="showView('home')">← Назад</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-primary" onclick="exportPDF()">📄 Сохранить PDF</button>
+    <button class="btn btn-secondary" onclick="saveCharacter()">💾 Сохранить персонажа (JSON)</button>
+    <button class="btn btn-secondary" onclick="importCharacter()">📂 Загрузить персонажа</button>
+    <div class="toolbar-separator"></div>
+    <button class="btn btn-secondary btn-sm" onclick="clearSheetFields()">🧹 Очистить поля</button>
+  </div>
+  <div class="sheet-wrapper" id="sheet-wrapper">
+    <div class="page-a4" id="sheet-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ СЛУЖЕБНЫЕ ЭЛЕМЕНТЫ ═══════════════════ -->
+<input type="file" id="file-input" accept=".json" style="display:none">
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- ═══════════════════ ВНЕШНИЕ БИБЛИОТЕКИ ═══════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<!-- ═══════════════════ МОДУЛИ ПРИЛОЖЕНИЯ ═══════════════════ -->
+<!-- Порядок важен: каждый модуль зависит от предыдущих -->
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/home.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/sheet.js"></script>
+<script src="js/pdf-export.js"></script>
+<script src="js/character-io.js"></script>
+
+<!-- ═══════════════════ ИНИЦИАЛИЗАЦИЯ ═══════════════════ -->
+<script>
+  // Загружаем шаблоны и рисуем главную страницу
+  loadFromStorage().then(() => renderHome());
+</script>
+
+</body>
+</html>

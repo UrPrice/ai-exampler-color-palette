@@ -1,0 +1,114 @@
+{
+  "name": "Орден Серых Стражей",
+  "title": "Орден Серых Стражей",
+  "subtitle": "ЭДЭМЭ | 1433 ГОД | КУЛЬТ СВЕТА",
+  "rows": [
+    {
+      "columns": [
+        {
+          "flex": 1,
+          "sections": [
+            {
+              "type": "fields",
+              "title": "Основная информация",
+              "columns": 2,
+              "align": "",
+              "fields": [
+                { "label": "Имя" },
+                { "label": "Ранг" },
+                { "label": "Прозвище" },
+                { "label": "Уровень" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "flex": 1,
+          "sections": [
+            {
+              "type": "fields",
+              "title": "Характеристики",
+              "columns": 1,
+              "align": "center",
+              "fields": [
+                { "label": "Самочувствие" },
+                { "label": "Движение" },
+                { "label": "Мышление" },
+                { "label": "Внимание" },
+                { "label": "Сражение" },
+                { "label": "Общение" }
+              ]
+            },
+            {
+              "type": "fields",
+              "title": "Ресурсы",
+              "columns": 1,
+              "align": "center",
+              "fields": [
+                { "label": "Здоровье" },
+                { "label": "Вдохновенье" },
+                { "label": "Опыт" }
+              ]
+            }
+          ]
+        },
+        {
+          "flex": 1.5,
+          "sections": [
+            {
+              "type": "table",
+              "title": "Черты и способности",
+              "headers": ["Название", "Описание"],
+              "widths": ["35%", "65%"],
+              "rows": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "flex": 1,
+          "sections": [
+            {
+              "type": "table",
+              "title": "Инвентарь и Арсенал",
+              "headers": ["Предмет", "Особенности"],
+              "widths": ["40%", "60%"],
+              "rows": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "flex": 1,
+          "sections": [
+            {
+              "type": "textarea",
+              "title": "Биография",
+              "height": 200
+            }
+          ]
+        },
+        {
+          "flex": 1,
+          "sections": [
+            {
+              "type": "textarea",
+              "title": "Заметки",
+              "height": 200
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
