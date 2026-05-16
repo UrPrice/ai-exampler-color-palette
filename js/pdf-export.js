@@ -26,12 +26,16 @@ function exportPDF() {
     div.className = 'pdf-swap-div';
 
     const cs = window.getComputedStyle(ta);
-    div.style.fontSize   = cs.fontSize;
-    div.style.lineHeight = cs.lineHeight;
-    div.style.padding    = cs.padding;
-    div.style.width      = '100%';
-    div.style.minHeight  = ta.scrollHeight + 'px';
-    div.style.textAlign  = cs.textAlign;
+    div.style.fontSize    = cs.fontSize;
+    div.style.lineHeight  = cs.lineHeight;
+    div.style.padding     = cs.padding;
+    div.style.width       = '100%';
+    div.style.minHeight   = ta.scrollHeight + 'px';
+    div.style.textAlign   = cs.textAlign;
+    div.style.display     = 'block';
+    div.style.whiteSpace  = 'pre-wrap';
+    div.style.wordBreak   = 'break-word';
+    div.style.overflowWrap = 'break-word';
 
     /* Если это box-textarea — копируем фон-линейку */
     if (ta.classList.contains('box-textarea')) {
