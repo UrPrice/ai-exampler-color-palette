@@ -25,17 +25,30 @@ function exportPDF() {
     const div = document.createElement('div');
     div.className = 'pdf-swap-div';
 
+    /* Получаем фактические пиксельные размеры до замены */
+    const taRect = ta.getBoundingClientRect();
     const cs = window.getComputedStyle(ta);
-    div.style.fontSize    = cs.fontSize;
-    div.style.lineHeight  = cs.lineHeight;
-    div.style.padding     = cs.padding;
-    div.style.width       = '100%';
-    div.style.minHeight   = ta.scrollHeight + 'px';
-    div.style.textAlign   = cs.textAlign;
-    div.style.display     = 'block';
-    div.style.whiteSpace  = 'pre-wrap';
-    div.style.wordBreak   = 'break-word';
+
+    /* Фиксированная пиксельная ширина — ключевое условие для переноса строк в html2canvas */
+    div.style.width        = taRect.width + 'px';
+    div.style.maxWidth     = taRect.width + 'px';
+    div.style.boxSizing    = 'border-box';
+
+    div.style.fontSize     = cs.fontSize;
+    div.style.fontFamily   = cs.fontFamily;
+    div.style.fontWeight   = cs.fontWeight;
+    div.style.lineHeight   = cs.lineHeight;
+    div.style.padding      = cs.padding;
+    div.style.color        = cs.color;
+    div.style.textAlign    = cs.textAlign;
+    div.style.display      = 'block';
+    div.style.whiteSpace   = 'pre-wrap';
+    div.style.wordBreak    = 'break-word';
     div.style.overflowWrap = 'break-word';
+    div.style.overflow     = 'visible';
+
+    /* Высота по содержимому, не меньше текущей высоты textarea */
+    div.style.minHeight = taRect.height + 'px';
 
     /* Если это box-textarea — копируем фон-линейку */
     if (ta.classList.contains('box-textarea')) {
