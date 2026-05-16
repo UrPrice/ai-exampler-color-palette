@@ -7,7 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Rye&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════ APP SHELL ═══════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#0e0e10;color:#e0ddd8;min-height:100vh}
 a{color:#c9a96e;text-decoration:none}
@@ -94,26 +93,28 @@ textarea.form-input{min-height:80px;resize:vertical}
 
 .page-a4 input[type="text"]{background:transparent;border:none;border-bottom:1px dotted #1a1614;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#1a1614;width:100%;outline:none;padding:0 5px}
 
-/* ——— Textarea в секциях «Биография / Заметки» ——— */
 .page-a4 .box-textarea{
   background:transparent;border:none;width:100%;resize:none;
   font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;
   color:#1a1614;outline:none;line-height:24px;
   background-image:linear-gradient(transparent,transparent 23px,rgba(0,0,0,.2) 24px);
-  background-size:100% 24px;
-  overflow:hidden;          /* скрываем скролл, растягиваем по содержимому */
+  background-size:100% 24px;overflow:hidden;
 }
 
-/* ——— Textarea внутри ячеек таблицы ——— */
 .page-a4 td textarea{
-  display:block;
-  background:transparent;border:none;width:100%;resize:none;
+  display:block;background:transparent;border:none;width:100%;resize:none;
   font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;
-  color:#1a1614;outline:none;
-  line-height:1.45;
-  padding:2px 5px;
-  overflow:hidden;
-  min-height:22px;
+  color:#1a1614;outline:none;line-height:1.45;padding:2px 5px;overflow:hidden;min-height:22px;
+}
+
+/* ——— Подменные div/span для PDF-экспорта ——— */
+.pdf-swap-div{
+  white-space:pre-wrap;word-break:break-word;
+  font-family:'Cormorant Garamond',serif;font-weight:600;color:#1a1614;
+}
+.pdf-swap-span{
+  display:block;width:100%;
+  font-family:'Cormorant Garamond',serif;font-weight:600;color:#1a1614;
 }
 
 .sheet-row{display:flex;gap:20px;margin-bottom:20px}
@@ -135,12 +136,10 @@ textarea.form-input{min-height:80px;resize:vertical}
 
 .splatter-1{position:absolute;top:40px;right:30px;width:40px;height:40px;background:radial-gradient(circle,rgba(122,16,16,.1) 0%,transparent 70%);border-radius:50%;pointer-events:none}
 
-/* ═══════════════════ RESPONSIVE ═══════════════════ */
 @media(max-width:900px){
   .editor-layout{grid-template-columns:1fr}
   .editor-sidebar{position:static;max-height:none}
 }
-
 @media print{
   body{background:white!important}
   .app-nav,.toolbar,.view>*:not(.sheet-wrapper){display:none!important}
@@ -168,7 +167,6 @@ textarea.form-input{min-height:80px;resize:vertical}
   </div>
 </nav>
 
-<!-- HOME -->
 <div id="view-home" class="view active">
   <h2 class="section-title">Ваши шаблоны</h2>
   <p class="section-subtitle">Выберите шаблон для заполнения или создайте новый</p>
@@ -181,7 +179,6 @@ textarea.form-input{min-height:80px;resize:vertical}
   <div id="template-grid" class="card-grid"></div>
 </div>
 
-<!-- EDITOR -->
 <div id="view-editor" class="view">
   <div class="toolbar">
     <button class="btn btn-secondary" onclick="showView('home')">← Назад</button>
@@ -204,7 +201,6 @@ textarea.form-input{min-height:80px;resize:vertical}
   </div>
 </div>
 
-<!-- SHEET -->
 <div id="view-sheet" class="view">
   <div class="toolbar" id="sheet-toolbar">
     <button class="btn btn-secondary" onclick="showView('home')">← Назад</button>
@@ -226,29 +222,14 @@ textarea.form-input{min-height:80px;resize:vertical}
 
 <script>
 /* ═══════════════════ STATE ═══════════════════ */
-let templates = {};
-let currentTemplateId = null;
-let editorSelection = null;
-let charData = {};
+let templates={};let currentTemplateId=null;let editorSelection=null;let charData={};
 
-const DEFAULT_TEMPLATE = {
-  name:"Орден Серых Стражей",title:"Орден Серых Стражей",subtitle:"ЭДЭМЭ | 1433 ГОД | КУЛЬТ СВЕТА",
-  rows:[
-    {columns:[{flex:1,sections:[{type:"fields",title:"Основная информация",columns:2,align:"",fields:[{label:"Имя"},{label:"Ранг"},{label:"Прозвище"},{label:"Уровень"}]}]}]},
-    {columns:[
-      {flex:1,sections:[
-        {type:"fields",title:"Характеристики",columns:1,align:"center",fields:[{label:"Самочувствие"},{label:"Движение"},{label:"Мышление"},{label:"Внимание"},{label:"Сражение"},{label:"Общение"}]},
-        {type:"fields",title:"Ресурсы",columns:1,align:"center",fields:[{label:"Здоровье"},{label:"Вдохновенье"},{label:"Опыт"}]}
-      ]},
-      {flex:1.5,sections:[{type:"table",title:"Черты и способности",headers:["Название","Описание"],widths:["35%","65%"],rows:10}]}
-    ]},
-    {columns:[{flex:1,sections:[{type:"table",title:"Инвентарь и Арсенал",headers:["Предмет","Особенности"],widths:["40%","60%"],rows:6}]}]},
-    {columns:[
-      {flex:1,sections:[{type:"textarea",title:"Биография",height:200}]},
-      {flex:1,sections:[{type:"textarea",title:"Заметки",height:200}]}
-    ]}
-  ]
-};
+const DEFAULT_TEMPLATE={name:"Орден Серых Стражей",title:"Орден Серых Стражей",subtitle:"ЭДЭМЭ | 1433 ГОД | КУЛЬТ СВЕТА",rows:[
+{columns:[{flex:1,sections:[{type:"fields",title:"Основная информация",columns:2,align:"",fields:[{label:"Имя"},{label:"Ранг"},{label:"Прозвище"},{label:"Уровень"}]}]}]},
+{columns:[{flex:1,sections:[{type:"fields",title:"Характеристики",columns:1,align:"center",fields:[{label:"Самочувствие"},{label:"Движение"},{label:"Мышление"},{label:"Внимание"},{label:"Сражение"},{label:"Общение"}]},{type:"fields",title:"Ресурсы",columns:1,align:"center",fields:[{label:"Здоровье"},{label:"Вдохновенье"},{label:"Опыт"}]}]},{flex:1.5,sections:[{type:"table",title:"Черты и способности",headers:["Название","Описание"],widths:["35%","65%"],rows:10}]}]},
+{columns:[{flex:1,sections:[{type:"table",title:"Инвентарь и Арсенал",headers:["Предмет","Особенности"],widths:["40%","60%"],rows:6}]}]},
+{columns:[{flex:1,sections:[{type:"textarea",title:"Биография",height:200}]},{flex:1,sections:[{type:"textarea",title:"Заметки",height:200}]}]}
+]};
 
 /* ═══════════════════ PERSISTENCE ═══════════════════ */
 function loadFromStorage(){try{const r=localStorage.getItem('cs_templates');if(r)templates=JSON.parse(r)}catch(e){templates={}}if(!Object.keys(templates).length){const id=uid();templates[id]=JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));saveToStorage()}}
@@ -266,10 +247,10 @@ function showView(name){
 /* ═══════════════════ HOME ═══════════════════ */
 function renderHome(){
   const grid=document.getElementById('template-grid');grid.innerHTML='';
-  for(const[id,tpl]of Object.entries(templates)){
-    const sc=tpl.rows.reduce((s,r)=>s+r.columns.reduce((s2,c)=>s2+c.sections.length,0),0);
+  for(const[id,t]of Object.entries(templates)){
+    const sc=t.rows.reduce((s,r)=>s+r.columns.reduce((s2,c)=>s2+c.sections.length,0),0);
     const card=document.createElement('div');card.className='card';
-    card.innerHTML=`<h3>${esc(tpl.name||'Без названия')}</h3><p>${esc(tpl.subtitle||'')}<br>Секций: ${sc} · Рядов: ${tpl.rows.length}</p>
+    card.innerHTML=`<h3>${esc(t.name||'Без названия')}</h3><p>${esc(t.subtitle||'')}<br>Секций: ${sc} · Рядов: ${t.rows.length}</p>
       <div class="card-actions"><button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openSheet('${id}')">📝 Заполнить</button><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openEditor('${id}')">✏️ Редактировать</button><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();duplicateTemplate('${id}')">📋 Копия</button></div>`;
     grid.appendChild(card);
   }
@@ -350,13 +331,7 @@ function renderEditorForm(){
 }
 
 function getSection(ri,ci,si){return tpl().rows[ri].columns[ci].sections[si]}
-function changeSectionType(ri,ci,si,nt){
-  const sec=getSection(ri,ci,si);const ot=sec.title;
-  if(nt==='fields')Object.assign(sec,{type:'fields',columns:1,align:'',fields:[{label:'Поле 1'}]});
-  else if(nt==='table'){Object.assign(sec,{type:'table',headers:['Название','Описание'],widths:['40%','60%'],rows:5});delete sec.columns;delete sec.align;delete sec.fields;delete sec.height}
-  else{Object.assign(sec,{type:'textarea',height:200});delete sec.columns;delete sec.align;delete sec.fields;delete sec.headers;delete sec.widths;delete sec.rows}
-  sec.title=ot;renderEditorForm();
-}
+function changeSectionType(ri,ci,si,nt){const sec=getSection(ri,ci,si);const ot=sec.title;if(nt==='fields')Object.assign(sec,{type:'fields',columns:1,align:'',fields:[{label:'Поле 1'}]});else if(nt==='table'){Object.assign(sec,{type:'table',headers:['Название','Описание'],widths:['40%','60%'],rows:5});delete sec.columns;delete sec.align;delete sec.fields;delete sec.height}else{Object.assign(sec,{type:'textarea',height:200});delete sec.columns;delete sec.align;delete sec.fields;delete sec.headers;delete sec.widths;delete sec.rows}sec.title=ot;renderEditorForm()}
 function addField(ri,ci,si){getSection(ri,ci,si).fields.push({label:'Новое поле'});renderEditorForm()}
 function removeField(ri,ci,si,fi){getSection(ri,ci,si).fields.splice(fi,1);renderEditorForm()}
 function addHeader(ri,ci,si){const s=getSection(ri,ci,si);s.headers.push('Столбец');if(!s.widths)s.widths=[];s.widths.push('');renderEditorForm()}
@@ -375,23 +350,14 @@ function exportTemplate(){const t=tpl();downloadJSON(t,(t.name||'template')+'.js
 function previewTemplate(){saveToStorage();charData={};showView('sheet')}
 
 /* ═══════════════════ AUTO-RESIZE ═══════════════════ */
-function autoResize(el){
-  el.style.height='auto';
-  el.style.height=el.scrollHeight+'px';
-}
-function initAutoResize(root){
-  root.querySelectorAll('textarea[data-fid]').forEach(ta=>{
-    autoResize(ta);                                 // подогнать при загрузке
-    ta.addEventListener('input',()=>autoResize(ta));
-  });
-}
+function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
+function initAutoResize(root){root.querySelectorAll('textarea[data-fid]').forEach(ta=>{autoResize(ta);ta.addEventListener('input',()=>autoResize(ta))})}
 
 /* ═══════════════════ SHEET RENDERING ═══════════════════ */
 function renderSheet(){
   if(!currentTemplateId||!tpl()){showView('home');return}
   const t=tpl();const el=document.getElementById('sheet-content');
   let html=`<div class="splatter-1"></div><h1>${esc(t.title)}</h1><div class="sheet-subtitle">${esc(t.subtitle)}</div>`;
-
   t.rows.forEach((row,ri)=>{
     const flexes=row.columns.map(c=>(c.flex||1)+'fr').join(' ');
     html+=`<div class="sheet-row" style="display:grid;grid-template-columns:${flexes};gap:20px;margin-bottom:${ri<t.rows.length-1?'20':'0'}px">`;
@@ -401,28 +367,15 @@ function renderSheet(){
         const sid=`${ri}_${ci}_${si}`;
         if(sec.type==='fields'){
           html+=`<div class="box"><div class="box-title">${esc(sec.title)}</div><div class="info-grid" style="grid-template-columns:repeat(${sec.columns||1},1fr)">`;
-          (sec.fields||[]).forEach((f,fi)=>{
-            const fid=`f_${sid}_${fi}`;const val=charData[fid]||'';
-            html+=`<div class="info-row"><span>${esc(f.label)}:</span><input type="text" data-fid="${fid}" value="${esc(val)}" ${sec.align?'style="text-align:'+sec.align+'"':''}></div>`;
-          });
+          (sec.fields||[]).forEach((f,fi)=>{const fid=`f_${sid}_${fi}`;const val=charData[fid]||'';html+=`<div class="info-row"><span>${esc(f.label)}:</span><input type="text" data-fid="${fid}" value="${esc(val)}" ${sec.align?'style="text-align:'+sec.align+'"':''}></div>`});
           html+=`</div></div>`;
-        }
-        else if(sec.type==='table'){
+        } else if(sec.type==='table'){
           html+=`<div class="box" style="flex:1;display:flex;flex-direction:column"><div class="box-title">${esc(sec.title)}</div><table><tr>`;
           (sec.headers||[]).forEach((hd,hi)=>{const w=(sec.widths||[])[hi];html+=`<th ${w?'style="width:'+w+'"':''}>${esc(hd)}</th>`});
           html+=`</tr>`;
-          for(let r=0;r<(sec.rows||5);r++){
-            html+=`<tr>`;
-            (sec.headers||[]).forEach((hd,hi)=>{
-              const fid=`t_${sid}_${r}_${hi}`;const val=charData[fid]||'';
-              // ——— textarea вместо input ———
-              html+=`<td><textarea data-fid="${fid}" rows="1">${esc(val)}</textarea></td>`;
-            });
-            html+=`</tr>`;
-          }
+          for(let r=0;r<(sec.rows||5);r++){html+=`<tr>`;(sec.headers||[]).forEach((hd,hi)=>{const fid=`t_${sid}_${r}_${hi}`;const val=charData[fid]||'';html+=`<td><textarea data-fid="${fid}" rows="1">${esc(val)}</textarea></td>`});html+=`</tr>`}
           html+=`</table></div>`;
-        }
-        else if(sec.type==='textarea'){
+        } else if(sec.type==='textarea'){
           const fid=`ta_${sid}`;const val=charData[fid]||'';
           html+=`<div class="box" style="min-height:${sec.height||200}px"><div class="box-title">${esc(sec.title)}</div><textarea class="box-textarea" data-fid="${fid}">${esc(val)}</textarea></div>`;
         }
@@ -432,40 +385,95 @@ function renderSheet(){
     html+=`</div>`;
   });
   el.innerHTML=html;
-
-  /* привязываем сохранение + автоподгон */
-  el.querySelectorAll('[data-fid]').forEach(inp=>{
-    inp.addEventListener('input',()=>{charData[inp.dataset.fid]=inp.value});
-  });
+  el.querySelectorAll('[data-fid]').forEach(inp=>{inp.addEventListener('input',()=>{charData[inp.dataset.fid]=inp.value})});
   initAutoResize(el);
 }
 
-function collectSheetData(){
-  const el=document.getElementById('sheet-content');
-  el.querySelectorAll('[data-fid]').forEach(inp=>{charData[inp.dataset.fid]=inp.value});
-}
+function collectSheetData(){document.getElementById('sheet-content').querySelectorAll('[data-fid]').forEach(inp=>{charData[inp.dataset.fid]=inp.value})}
 function clearSheetFields(){if(!confirm('Очистить все поля?'))return;charData={};renderSheet();toast('Поля очищены')}
 
-/* ═══════════════════ PDF EXPORT ═══════════════════ */
+/* ═══════════════════════════════════════════════════════
+   PDF EXPORT — подмена textarea/input → div/span
+   html2canvas НЕ рендерит содержимое <textarea> и
+   часто теряет value у <input>. Поэтому перед захватом
+   заменяем их обычными элементами, а после — возвращаем.
+   ═══════════════════════════════════════════════════════ */
 function exportPDF(){
   collectSheetData();
-  const element=document.getElementById('sheet-content');
-  const name=tpl()?.name||'character-sheet';
+  const element = document.getElementById('sheet-content');
+  const name    = tpl()?.name || 'character-sheet';
   toast('Генерация PDF…');
 
-  /* Замеряем реальную высоту листа (может быть больше A4) */
-  const rect=element.getBoundingClientRect();
-  const widthMM=210;
-  const heightMM=Math.max(297,Math.ceil(rect.height/rect.width*widthMM)+2);
+  /* ——— 1. Подмена textarea → div ——— */
+  const swaps = [];
 
-  const opt={
-    margin:0,
-    filename:name+'.pdf',
-    image:{type:'jpeg',quality:0.95},
-    html2canvas:{scale:2,useCORS:true,backgroundColor:'#c7bcae'},
-    jsPDF:{unit:'mm',format:[widthMM,heightMM],orientation:'portrait'}
+  element.querySelectorAll('textarea[data-fid]').forEach(ta => {
+    const div = document.createElement('div');
+    div.className = 'pdf-swap-div';
+
+    /* Копируем ключевые вычисленные стили */
+    const cs = window.getComputedStyle(ta);
+    div.style.fontSize   = cs.fontSize;
+    div.style.lineHeight = cs.lineHeight;
+    div.style.padding    = cs.padding;
+    div.style.width      = '100%';
+    div.style.minHeight  = ta.scrollHeight + 'px';
+    div.style.textAlign  = cs.textAlign;
+
+    /* Если это box-textarea — добавляем фон-линейки */
+    if (ta.classList.contains('box-textarea')) {
+      div.style.backgroundImage = cs.backgroundImage;
+      div.style.backgroundSize  = cs.backgroundSize;
+    }
+
+    /* Текст: сохраняем переносы строк */
+    div.textContent = ta.value;
+
+    swaps.push({ original: ta, replacement: div });
+    ta.parentNode.replaceChild(div, ta);
+  });
+
+  /* ——— 2. Подмена input[type=text] → span ——— */
+  element.querySelectorAll('input[type="text"][data-fid]').forEach(inp => {
+    const span = document.createElement('span');
+    span.className = 'pdf-swap-span';
+
+    const cs = window.getComputedStyle(inp);
+    span.style.fontSize      = cs.fontSize;
+    span.style.padding       = cs.padding;
+    span.style.borderBottom  = cs.borderBottom;
+    span.style.textAlign     = cs.textAlign;
+    span.style.minHeight     = cs.height;
+
+    span.textContent = inp.value;
+
+    swaps.push({ original: inp, replacement: span });
+    inp.parentNode.replaceChild(span, inp);
+  });
+
+  /* ——— 3. Пересчитываем высоту (лист мог вырасти) ——— */
+  const rect     = element.getBoundingClientRect();
+  const widthMM  = 210;
+  const heightMM = Math.max(297, Math.ceil(rect.height / rect.width * widthMM) + 2);
+
+  const opt = {
+    margin: 0,
+    filename: name + '.pdf',
+    image:       { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#c7bcae' },
+    jsPDF:       { unit: 'mm', format: [widthMM, heightMM], orientation: 'portrait' }
   };
-  html2pdf().set(opt).from(element).save().then(()=>toast('PDF сохранён')).catch(()=>toast('Ошибка. Попробуйте Ctrl+P → Сохранить как PDF'));
+
+  /* ——— 4. Восстановление оригиналов ——— */
+  function restore(){
+    swaps.forEach(({ original, replacement }) => {
+      if (replacement.parentNode) replacement.parentNode.replaceChild(original, replacement);
+    });
+  }
+
+  html2pdf().set(opt).from(element).save()
+    .then(()  => { restore(); toast('PDF сохранён'); })
+    .catch(() => { restore(); toast('Ошибка. Попробуйте Ctrl+P → Сохранить как PDF'); });
 }
 
 /* ═══════════════════ CHARACTER IO ═══════════════════ */
